@@ -30,8 +30,7 @@ There are three different tests to run.
 
 #### Pairwise sequential ping
 Just run `bash runall-ping.sh <output_name>`. This does a sequential, pairwise ping of all machines. To change how long each probe runs, 
-`emacs runall-ping.sh`, then change the line `cat hosts | xargs -Iip sh run-ping-on.sh ip 1 $baseName`, where `1` says run each pairwise probe
-for 1 sec.
+`emacs runall-ping.sh`, then change the line `cat hosts | xargs -Iip sh run-ping-on.sh ip 1 $baseName`, where `1` says run each pairwise probe for 1 sec. The frequency of ping can be changed in `ping-csv.sh`.
 
 #### Pairwise iperf bandwidth
 Just run `bash runall-tcp-seq.sh <output_name>`. This does a sequential, pairwise bandwidth probe of all machines. Similarly, change `ip 60` in 

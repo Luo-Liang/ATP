@@ -14,7 +14,7 @@ fi
 
 trap echo 0
 
-rm $4 &> /dev/null
+#rm $4 &> /dev/null
 
 sudo ping $1 -w $5 -i 0.01 | while read line; do
 

@@ -1,14 +1,14 @@
 #!/bin/bash
 #test duration, report base, writeback addr
 #     $1            $2           $3
-pgrep iperf | xargs kill -9
+pgrep iperf | xargs kill -9 > /dev/null 2>&1
 rm *.txt *.raw 2> /dev/null
 totalClients=`cat hosts | sed '/^\s*$/d' | wc -l`
 totalClients=$((totalClients - 1))
 myIP="$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
-echo "run-tcp-seq-one-all.sh currently running on ${myIP}"
+echo "run-tcp-seq-one-all.sh is currently running on ${myIP}"
 #run multiple servers
-sh iperf-parallel-servers.sh $totalClients $2 $1
+sh iperf-parallel-servers.sh $totalClients $2 214748364
 #echo "STARTING ${myIP}" > $myIP
 idx=0
 while IFS='' read -r line || [ -n "$line" ]; do
@@ -23,8 +23,9 @@ while IFS='' read -r line || [ -n "$line" ]; do
     #my port:
     currPort=$((5000+$idx))
     #recover data from the server.
+    #sleep 1
     echo "launching on " $line " with command iperf -c ${myIP} -p ${currPort} -t $1 &  sleep $1; pkill iperf  "
-    ssh $line -o StrictHostKeyChecking=no "iperf -c ${myIP} -p ${currPort} -t $1 &  sleep $1; pkill -9 iperf " < /dev/null
+    ssh $line -o StrictHostKeyChecking=no "iperf -c ${myIP} -p ${currPort} -t $1 &  sleep $1; pkill -9 iperf " #> /dev/null
     echo $line " finsihed executing"
 done < "hosts"
 echo "${myIP} is waiting for a few seconds to shutdown server"

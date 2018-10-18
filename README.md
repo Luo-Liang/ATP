@@ -41,7 +41,7 @@ Just run `bash runall-tcp-seq.sh <output_name>`. This does a sequential, pairwis
 Just run `bash runall-tcp.sh <output_name>`. This does a concurrent, pairwise bandwidth probe of all machines, so each machine will establish N
 connections to other machines. Similarly, change `ip 60` in `runall-tcp.sh` to change to run longer test per probe.
 
-### Concurrent sequential ping
+#### Concurrent ping
 Someone please do it. Should just be a minor tweak to sequential ping
 
 

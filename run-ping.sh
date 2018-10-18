@@ -7,7 +7,7 @@ reportFile="${PWD}/$3-${myIP}.txt"
 #cat hosts | xargs -I{} ssh -o StrictHostKeyChecking=no {} "pgrep qperf | xargs kill -9 &> /dev/null; cd ~/qperf-0.4.9/src; ./qperf -t 10s -v ${myIP} udp_lat"
 #rm $reportFile &> /dev/null
 touch $reportFile
-cat hosts | xargs -Iip sh -c "cd ${PWD}; bash ./ping-csv.sh ip $myIP ip $reportFile $2"
+cat hosts | xargs -Iip sh -c "cd ${PWD}; echo 'bash ./ping-csv.sh ip $myIP ip $reportFile $2'; bash ./ping-csv.sh ip $myIP ip $reportFile $2"
 if [ $# -gt 0 ]
 then
     #copy back.

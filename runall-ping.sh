@@ -10,5 +10,5 @@ cat hosts | xargs -Iip sh run-ping-on.sh ip 1 $baseName
 expectedFileName="${baseName}-*.txt"
 cat $expectedFileName >> $1
 #i want to append it to a global raw file.
-rm $expectedFileName
-rm *.txt
+#rm $expectedFileName
+#rm *.txt

@@ -2,7 +2,7 @@
 #test duration, report base, writeback addr
 #     $1            $2           $3
 pgrep iperf | xargs kill -9 > /dev/null 2>&1
-rm *.txt *.raw 2> /dev/null
+#rm *.txt *.raw 2> /dev/null
 totalClients=`cat hosts | sed '/^\s*$/d' | wc -l`
 totalClients=$((totalClients - 1))
 myIP="$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"

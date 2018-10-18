@@ -11,5 +11,5 @@ cat hosts | xargs -Iip sh run-tcp-seq-on.sh ip 10 $baseName
 expectedFileName="${baseName}-*.txt"
 cat $expectedFileName >> $1
 #i want to append it to a global raw file.
-rm $expectedFileName
-rm *.raw
+#rm $expectedFileName
+#rm *.raw

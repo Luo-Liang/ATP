@@ -8,7 +8,7 @@
 # adapted: https://gist.githubusercontent.com/dansimau/1513880/raw/94765d6f46157ae6b95c6e994981aef0bfa4fe25/ping-csv.sh
 
 if [ $# -lt 4 ]; then
-	echo "Usage: $0 [--add-timestamp] <ping host> fromip toip location"
+	echo "Usage: $0 [--add-timestamp] <ping host> fromip toip location time"
 	exit 99
 fi
 
@@ -16,7 +16,7 @@ trap echo 0
 
 rm $4 &> /dev/null
 
-sudo ping $1 -w 1 -i 0.001 | while read line; do
+sudo ping $1 -w $5 -i 0.01 | while read line; do
 
 	# Skip header
 	[[ "$line" =~ ^PING ]] && continue

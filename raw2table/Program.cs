@@ -118,7 +118,7 @@ namespace raw2table
             {
                 regexStr = @"\d+,(\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b),\d+,(\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b),\d+,\d+,";
             }
-            else if ( benchmark == "igi")
+            else if (benchmark == "igi")
             {
                 regexStr = @"STARTING (\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b)-(\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b)";
             }
@@ -151,28 +151,6 @@ namespace raw2table
             }
             return new Regex(regexStr);
         }
-        //static Dictionary<string, int> GetId2Rank(string[] contents)
-        //{
-        //    Dictionary<string, int> id2Rank = new Dictionary<string, int>();
-        //    var idRegex = IdentityDiscoveryRegex(InferBenchmark(contents));
-        //    for (int i = 0; i < contents.Length; i++)
-        //    {
-        //        var currLine = contents[i];
-        //        var match = idRegex.Match(currLine);
-        //        if (match.Success)
-        //        {
-        //            for (int g = 1; g < match.Groups.Count; g++)
-        //            {
-        //                if (id2Rank.ContainsKey(match.Groups[g].Value) == false)
-        //                {
-        //                    id2Rank.Add(match.Groups[g].Value, id2Rank.Count);
-        //                }
-        //            }
-        //        }
-        //    }
-        //    return id2Rank;
-        //}
-
         static void PreProcess(List<double>[,] data, int drop)
         {
             for (int i = 0; i < data.GetLength(0); i++)
@@ -234,9 +212,11 @@ namespace raw2table
                 sw.WriteLine(string.Format("MAX_X:{0};MAX_Y:{1};MIN_Y:{2};DIM:{3}", max, maxY, minY, data.GetLength(0)));
             }
         }
+        static int totalLines = 0;
+        static int procedLines = 0;
         static ProgressBar prog = new ProgressBar();
         static Dictionary<string, int> host2Rank = new Dictionary<string, int>();
-        const int CONCURRENCY_BLOCK_SIZE = 512;
+        const int CONCURRENCY_BLOCK_SIZE = 8192;
         //static HashSet<string> unknownIds = new HashSet<string>();
 
         //remember, system.collection.list can be read by multiple threads simultaneously.
@@ -287,10 +267,23 @@ namespace raw2table
                     }
                 }
             });
+            procedLines += contents.Count;
+            prog.Report(procedLines * 1.0/ totalLines);
         }
 
         static void Process(string file)
         {
+            //var totallines = 0;
+            //count how many lines are there
+            using (var rdr = new StreamReader(file))
+            {
+                while(rdr.EndOfStream == false)
+                {
+                    rdr.ReadLine();
+                    totalLines++;
+                }
+            }
+            //Console.WriteLine("[INFO] {0} lines found in file.", totalLines);
             var sr = new StreamReader(file);
             var content = sr.ReadLine();
             //var lines = content.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -329,6 +322,7 @@ namespace raw2table
                 if (sr.EndOfStream || (contents.Count > 0 && contents.Count % CONCURRENCY_BLOCK_SIZE == 0))
                 {
                     Dispatch(contents, idReg, data, valReg);
+                    contents.Clear();
                 }
             }
 
@@ -354,7 +348,7 @@ namespace raw2table
             {
                 foreach (var line in sr.ReadToEnd().Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    host2Rank.Add(line, host2Rank.Count);
+                    host2Rank.Add(line.Trim(), host2Rank.Count);
                     hosts.Add(line);
                 }
             }

@@ -197,11 +197,14 @@ namespace raw2table
                         maxY = Math.Max(maxY, lst.Count == 0 ? 0 : lst.Max());
                         minY = Math.Min(minY, lst.Count == 0 ? double.MaxValue : lst.Min());
                     }
+                    var emitFreq = lst.Count / maxEmitPerPair;
+                    if (emitFreq == 0) emitFreq = 1;
                     using (var sw = new StreamWriter(fName))
                     {
-                        for (int i = 0; i < lst.Count; i++)
+                        for (int i = 0; i < lst.Count; i += emitFreq)
                         {
-                            sw.WriteLine(string.Format("{0},{1}", i, lst[i]));
+                            sw.WriteLine(string.Format("{0},{1}", i / emitFreq, lst[i]));
+                            //drop element otherwise
                         }
                     }
                 }
@@ -214,6 +217,7 @@ namespace raw2table
         }
         static int totalLines = 0;
         static int procedLines = 0;
+        static int maxEmitPerPair = 2000;
         static ProgressBar prog = new ProgressBar();
         static Dictionary<string, int> host2Rank = new Dictionary<string, int>();
         const int CONCURRENCY_BLOCK_SIZE = 8192;
@@ -268,7 +272,7 @@ namespace raw2table
                 }
             });
             procedLines += contents.Count;
-            prog.Report(procedLines * 1.0/ totalLines);
+            prog.Report(procedLines * 1.0 / totalLines);
         }
 
         static void Process(string file)
@@ -277,7 +281,7 @@ namespace raw2table
             //count how many lines are there
             using (var rdr = new StreamReader(file))
             {
-                while(rdr.EndOfStream == false)
+                while (rdr.EndOfStream == false)
                 {
                     rdr.ReadLine();
                     totalLines++;
@@ -335,14 +339,18 @@ namespace raw2table
 
         static void Main(string[] args)
         {
-            if (args.Length != 2)
+            if (args.Length < 2 || args.Length > 3)
             {
-                Console.WriteLine("dotnet run file-to-analyze host-file-path");
+                Console.WriteLine("dotnet run file-to-analyze host-file-path [samples to emit per pair]");
             }
             //var fp = args.Length > 0 ? args[0] : "../benchmarks";
             var file = args[0];
             //Console.WriteLine("Searching for {0} in folder {1}", searchPattern, fp);
             var hostFile = args[1];
+            if (args.Length > 2)
+            {
+                maxEmitPerPair = int.Parse(args[2]);
+            }
 
             using (var sr = new StreamReader(hostFile))
             {

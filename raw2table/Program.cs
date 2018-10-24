@@ -203,7 +203,7 @@ namespace raw2table
                     {
                         for (int i = 0; i < lst.Count; i += emitFreq)
                         {
-                            sw.WriteLine(string.Format("{0},{1}", i / emitFreq, lst[i]));
+                            sw.WriteLine(string.Format("{0},{1}", i, lst[i]));
                             //drop element otherwise
                         }
                     }

@@ -6,7 +6,7 @@ import csv
 
 # Fixing random state for reproducibility
 probeFolder = "../benchmarks"
-graphType = "histogram"
+graphType = "time"
 if len(sys.argv) > 1:
     probeFolder = sys.argv[1]
     if len(sys.argv) > 2:
@@ -48,6 +48,7 @@ for folder in folders:
     max_x = int(optDict['MAX_X'])
     max_y = float(optDict['MAX_Y'])
     min_y = float(optDict['MIN_Y'])
+    #x_skip = int(optDict['FREQ_X'])
     for sndr in range(0, dim):
         for recv in range(0, dim):
             file = folderPath + "/" + str(sndr) + "-" + str(recv)
@@ -61,12 +62,8 @@ for folder in folders:
                     y = y + [float(line[1])]
                     area = area + [0.2]
                     pass
-                starting = 0 if len(x) == 0 else x[-1] + 1
-                pad = range(starting + 1, starting + max_x - len(x))
+           
                 highlightYElement = 0 if len(y) == 0 else np.mean(y)
-                x += pad
-                y += [0] * len(pad)
-                highlightY = [highlightYElement] * len(y)
                 plt.subplot(dim,dim,dim * sndr + recv + 1)
                 if graphType == "histogram":
                     plt.xlim(min_y,max_y)
@@ -77,6 +74,13 @@ for folder in folders:
                     plt.plot([highlightYElement,highlightYElement],[0,1] , color='r')
                     pass
                 elif graphType == "time":
+                    starting = 0 if len(x) == 0 else x[-1] + 1
+                    pad = [max_x] #range(starting + 1, starting + max_x - 0 if len(x) == 0 else x[-1])
+                    #if len(pad) + len(x) > 2000:
+
+                    x += pad
+                    y += [0] * len(pad)
+                    highlightY = [highlightYElement] * len(y)
                     plt.ylim(0,max_y)
                     plt.xlim(0,max_x)
                     plt.scatter(x,y,s=area)

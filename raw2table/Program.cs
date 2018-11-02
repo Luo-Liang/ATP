@@ -12,7 +12,7 @@ namespace raw2table
 {
     class Program
     {
-        static void WriteProcessedMatrix(List<double>[,] arr, string selfTestOptions, string valueExp, string file)
+        static void WriteProcessedMatrix(List<double>[,] arr, string selfTestOptions, string valueExp, string file, double normalizer = 1.0)
         {
             var sw = new StreamWriter(file + ".proced.csv");
             var dim = arr.GetLength(0);
@@ -21,13 +21,13 @@ namespace raw2table
             for (int i = 0; i < dim; i++)
             {
                 singleNodeCosts[i] = arr[i, i];
-                matrix[i, i] = GetValue(singleNodeCosts[i], "avg");
+                matrix[i, i] = GetValue(singleNodeCosts[i], "avg", normalizer);
             }
             for (int lineIdx = 0; lineIdx < dim; lineIdx++)
             {
                 for (int colIdx = 0; colIdx < dim; colIdx++)
                 {
-                    matrix[lineIdx, colIdx] = GetValue(arr[lineIdx, colIdx], valueExp);
+                    matrix[lineIdx, colIdx] = GetValue(arr[lineIdx, colIdx], valueExp, normalizer);
                     if (arr[lineIdx, colIdx].Count == 0 && lineIdx < colIdx)
                     {
                         Console.WriteLine("[Warning] no data from {0} to {1} can be found.", hosts[lineIdx], hosts[colIdx]);
@@ -63,20 +63,20 @@ namespace raw2table
             //write back
             sw.Dispose();
         }
-        static double GetValue(List<double> history, string valExtractExp)
+        static double GetValue(List<double> history, string valExtractExp, double normalizer)
         {
             if (history.Count == 0) return 0;
             if (valExtractExp == "max")
             {
-                return history.Max();
+                return Math.Round(history.Max() / normalizer,2);
             }
             else if (valExtractExp == "min")
             {
-                return history.Min();
+                return Math.Round( history.Min() / normalizer,2);
             }
             else if (valExtractExp == "avg")
             {
-                return history.Average();
+                return Math.Round(history.Average() / normalizer,2);
             }
             else
             {
@@ -106,7 +106,13 @@ namespace raw2table
         {
             return GetControlOption(content, 3, "VALUE");
         }
-
+        static double NormalizerOptions(string content)
+        {
+            var controlLine = content;
+            var normalizerOption = content.Split(';').Where(o => o.Split(':')[0] == "NORMALIZER").FirstOrDefault();
+            if (normalizerOption == null) return 1.0;
+            else return double.Parse(normalizerOption.Split(':')[1]);
+        }
         static int PreprocessOptions(string content)
         {
             return int.Parse(GetControlOption(content, 4, "PREPROCESS"));
@@ -331,7 +337,7 @@ namespace raw2table
             }
 
             PreProcess(data, PreprocessOptions(content));
-            WriteProcessedMatrix(data, selfTestOption, valueExp, file);
+            WriteProcessedMatrix(data, selfTestOption, valueExp, file, NormalizerOptions(content));
             WriteCSVForPlots(data, file);
         }
 
